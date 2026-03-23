@@ -61,18 +61,15 @@ Phases can be used alone or chained (e.g. Analyze → Generate).
 ## How It Works
 
 ```
-Reference designs                    Design DNA JSON                     Your final output
-(screenshots, URLs, images)          (quantified spec)                   (faithful implementation)
-
-  ┌──────────────┐     Analyze      ┌──────────────┐     Generate      ┌──────────────┐
-  │              │ ──────────────►  │              │ ──────────────►  │              │
-  │  Any design  │   extract every  │  Structured  │   apply DNA to   │  Production  │
-  │  you admire  │   visual property│  JSON profile │   your content   │  ready UI    │
-  │              │ ──────────────►  │              │ ──────────────►  │              │
-  └──────────────┘                  └──────────────┘                  └──────────────┘
-                                           │
-                                     save / reuse /
-                                     version control
+                        Analyze                Generate
+ ┌───────────────┐    ──────────►    ┌──────┐    ──────────►    ┌────────────┐
+ │  Screenshots  │    extract every  │      │    apply DNA to   │            │
+ │  URLs         │    visual property│ DNA  │    your content    │ Production │
+ │  Images       │    into structured│ JSON │    and generate    │ ready UI   │
+ └───────────────┘    JSON profile   └──┬───┘    faithfully      └────────────┘
+                                        │
+                                   save · reuse
+                                   share · iterate
 ```
 
 **Step 1 — Curate references.** Collect screenshots, images, or live URLs of designs whose visual identity you want to capture. Multiple references can be combined; the skill identifies dominant patterns and notes variants.
