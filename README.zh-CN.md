@@ -1,5 +1,7 @@
 # design-dna
 
+![示例：从参考站点（thekrakentraining.com）提取视觉 DNA，并应用到自有内容（deno.com）。](docs/example-style-transfer.png)
+
 [English](README.md) | 中文
 
 面向编程智能体的技能，用于提取、结构化并应用视觉设计身份（Design DNA），覆盖三个维度：设计系统（可度量 token）、设计风格（定性感受）与视觉特效。

@@ -1,5 +1,7 @@
 # design-dna
 
+![Example: extract the visual DNA from a reference (thekrakentraining.com) and apply it to your own content (deno.com).](docs/example-style-transfer.png)
+
 English | [中文](README.zh-CN.md)
 
 An agent skill for extracting, structuring, and applying visual design identity as machine-readable "Design DNA" across three dimensions: design tokens, qualitative style, and visual effects.
