@@ -64,25 +64,6 @@ npx skills add zanwei/design-dna --list
 
 这套流程把主观的「照着那个做」变成一份**可复现、可版本管理的规格定义**，任何智能体都能据此稳定输出一致的设计。
 
-### 使用示例
-
-```
-# 查看 Design DNA 结构
-"展示 Design DNA 的 schema"
-
-# 将参考设计量化为 JSON
-"分析这个设计" + 提供截图或网址
-
-# 端到端：分析参考后直接生成同风格页面
-"分析这个设计，然后用同样的风格做一个落地页"
-
-# 用已有 DNA JSON 生成新内容
-"这是我的 Design DNA JSON，用它生成一个 hero section"
-
-# 迭代：微调 DNA 数值后重新生成
-"把 DNA 里的强调色改为 #FF6B00，然后重新生成"
-```
-
 ## 兼容性
 
 符合 [Agent Skills 规范](https://agentskills.io)。可通过 [`skills` CLI](https://github.com/vercel-labs/skills) 安装到所有[支持的智能体](https://github.com/vercel-labs/skills#supported-agents)，包括 Cursor、Claude Code、Codex、GitHub Copilot 等 [40+ 款](https://github.com/vercel-labs/skills#supported-agents)。

@@ -64,25 +64,6 @@ Phases can be used alone or chained (e.g. Analyze → Generate).
 
 This turns subjective "make it look like that" requests into a **reproducible, version-controllable specification** that any agent can consume consistently.
 
-### Usage Examples
-
-```
-# Show the Design DNA schema
-"Show me the design DNA structure"
-
-# Analyze a reference design into quantified JSON
-"Analyze this design" + provide screenshots or URLs
-
-# End-to-end: analyze a reference, then generate a new page in the same style
-"Analyze this design and build me a landing page in the same style"
-
-# Reuse an existing DNA JSON for new content
-"Here's my Design DNA JSON, generate a hero section from it"
-
-# Iterate: tweak DNA values, then regenerate
-"Change the accent color to #FF6B00 in the DNA and regenerate"
-```
-
 ## Compatibility
 
 Follows the [Agent Skills specification](https://agentskills.io). Installable via [`skills` CLI](https://github.com/vercel-labs/skills) to all [supported agents](https://github.com/vercel-labs/skills#supported-agents) including Cursor, Claude Code, Codex, GitHub Copilot, and [39 more](https://github.com/vercel-labs/skills#supported-agents).
