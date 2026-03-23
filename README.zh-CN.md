@@ -80,10 +80,6 @@ design-dna/
 - 符合 [Agent Skills 规范](https://agentskills.io)。
 - 可通过 [`vercel-labs/skills` CLI](https://github.com/vercel-labs/skills) 安装到 [其支持的智能体](https://github.com/vercel-labs/skills#supported-agents)。
 
-## 与 skills.sh 排行榜的关系
-
-[skills.sh](https://skills.sh/) 上的排序依据 `skills` CLI 上报的 **匿名聚合安装数据**（见[官方说明](https://skills.sh/docs)），**没有**单独的「提交上架」流程。将仓库公开到 GitHub，并在 README 或文章中分享 `npx skills add owner/repo`，即完成对外发布；安装量提升后，更容易在排行榜中被看到。
-
 ## 安全说明
 
 安装任何技能前请自行审阅仓库内容。本仓库仅包含 Markdown 说明与参考文档，**不包含**可执行脚本。若需报告与生态相关的安全问题，可参考 [skills.sh 文档](https://skills.sh/docs)中的指引。

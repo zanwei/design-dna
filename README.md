@@ -80,10 +80,6 @@ The skill’s `description` in `SKILL.md` lists trigger phrases. In short, use i
 - Follows the [Agent Skills specification](https://agentskills.io).
 - Installable via [`vercel-labs/skills` CLI](https://github.com/vercel-labs/skills) to [supported agents](https://github.com/vercel-labs/skills#supported-agents).
 
-## skills.sh leaderboard
-
-[skills.sh](https://skills.sh/) ranks skills using **anonymous, aggregated** install telemetry from the `skills` CLI ([docs](https://skills.sh/docs)). There is no separate “submit” step: publishing a public GitHub repo and sharing the `npx skills add owner/repo` command is how people discover and install your skill.
-
 ## Security
 
 Review any skill before installing. This repository contains only Markdown instructions and references—no executable scripts. For reporting security issues in dependencies you use locally, follow your organization’s process; general guidance appears on [skills.sh docs](https://skills.sh/docs).
