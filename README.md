@@ -60,16 +60,17 @@ Phases can be used alone or chained (e.g. Analyze → Generate).
 
 ## How It Works
 
-```
-                        Analyze                Generate
- ┌───────────────┐    ──────────►    ┌──────┐    ──────────►    ┌────────────┐
- │  Screenshots  │    extract every  │      │    apply DNA to   │            │
- │  URLs         │    visual property│ DNA  │    your content    │ Production │
- │  Images       │    into structured│ JSON │    and generate    │ ready UI   │
- └───────────────┘    JSON profile   └──┬───┘    faithfully      └────────────┘
-                                        │
-                                   save · reuse
-                                   share · iterate
+Pipeline at a glance ([Mermaid](https://github.blog/news-insights/product-news/github-now-supports-mermaid-diagrams-in-markdown/) renders on GitHub):
+
+```mermaid
+flowchart LR
+    A["Reference designs<br/>Screenshots · URLs · images<br/><br/>Any design you admire"]
+    B["Design DNA JSON<br/>Quantified spec<br/><br/>Structured profile"]
+    C["Final output<br/>Faithful implementation<br/><br/>Production-ready UI"]
+
+    A -->|"Analyze — extract every visual property"| B
+    B -->|"Generate — apply DNA to your content"| C
+    B -.-> D["Save · reuse · version control"]
 ```
 
 **Step 1 — Curate references.** Collect screenshots, images, or live URLs of designs whose visual identity you want to capture. Multiple references can be combined; the skill identifies dominant patterns and notes variants.
