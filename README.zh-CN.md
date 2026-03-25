@@ -81,6 +81,10 @@ flowchart LR
 
 DNA JSON 是核心产物。一旦提取完成，它可以**提交到版本控制**、**跨团队共享**、**在多个项目中复用**，也可以**持续迭代微调** — 把主观的「照着那个网站做」变成一份精确、可复现的规格定义，任何智能体都能据此稳定输出一致的设计。
 
+### 提升视觉丰富度的精修轮次
+
+若首轮生成与参考相比仍显**单薄或细节不足**，可将**同一批参考链接或截图**再次提供给智能体，请其**对照参考做一次专项复审**：界面层级与点缀、字阶与留白、动效与材质等细部与整体 UI，并将结论**回填**至当前实现。将其视为明确的**精修迭代**，通常能在不推翻初稿的前提下，显著缩小「可用稿」与「高保真参照」之间的差距。
+
 ## 兼容性
 
 符合 [Agent Skills 规范](https://agentskills.io)。可通过 [`skills` CLI](https://github.com/vercel-labs/skills) 安装到所有[支持的智能体](https://github.com/vercel-labs/skills#supported-agents)，包括 Cursor、Claude Code、Codex、GitHub Copilot 等 [40+ 款](https://github.com/vercel-labs/skills#supported-agents)。
