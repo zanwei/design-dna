@@ -99,3 +99,7 @@ Las issues y pull requests son bienvenidas. Si cambias el comportamiento de la h
 ## Licencia
 
 MIT
+
+## Historial de estrellas
+
+[![Gráfico del historial de estrellas](https://api.star-history.com/svg?repos=zanwei/design-dna&type=Date)](https://star-history.com/#zanwei/design-dna&Date)

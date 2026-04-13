@@ -99,3 +99,7 @@ Issue와 Pull Request를 환영합니다. 스킬 동작을 바꿀 때는 `SKILL.
 ## 라이선스
 
 MIT
+
+## Star 히스토리
+
+[![Star 히스토리 차트](https://api.star-history.com/svg?repos=zanwei/design-dna&type=Date)](https://star-history.com/#zanwei/design-dna&Date)

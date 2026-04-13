@@ -99,3 +99,7 @@ DNA JSON 是核心产物。一旦提取完成，它可以**提交到版本控制
 ## 许可证
 
 MIT
+
+## 星标历史
+
+[![星标历史图表](https://api.star-history.com/svg?repos=zanwei/design-dna&type=Date)](https://star-history.com/#zanwei/design-dna&Date)

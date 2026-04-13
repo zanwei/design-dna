@@ -109,3 +109,7 @@ Issues and pull requests are welcome. For substantive behavior changes, update `
 ## License
 
 MIT
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=zanwei/design-dna&type=Date)](https://star-history.com/#zanwei/design-dna&Date)

@@ -99,3 +99,7 @@ Issue と Pull Request を歓迎します。スキルの挙動を変更する場
 ## ライセンス
 
 MIT
+
+## Star 履歴
+
+[![Star 履歴チャート](https://api.star-history.com/svg?repos=zanwei/design-dna&type=Date)](https://star-history.com/#zanwei/design-dna&Date)
