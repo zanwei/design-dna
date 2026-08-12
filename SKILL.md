@@ -42,7 +42,7 @@ When the user provides images, screenshots, or links representing a target desig
 
 1. Read [references/schema.md](references/schema.md) for the full field list
 2. For each reference provided:
-   - If image/screenshot: analyze visual properties directly
+   - If image/screenshot: **first run the deterministic color measurement** (see below), then analyze the remaining visual properties directly
    - If URL: fetch and analyze the page's visual design
 3. For every field in the schema, extract or infer a value from the references
 4. When multiple references conflict, note the dominant pattern and mention variants
@@ -52,7 +52,12 @@ When the user provides images, screenshots, or links representing a target desig
 **Analysis approach per dimension:**
 
 #### Dimension 1: design_system
-- **color**: Extract dominant palette via visual sampling. Primary by area dominance, secondary by supporting role, accent by CTA usage. Map neutral scale from lightest background to darkest text.
+- **color**: Do not estimate hex values by eye — perceived colors drift toward familiar palette defaults (often by a ΔE of 10+). When the reference is an image file, measure instead:
+  ```bash
+  cd scripts && npm install --silent && cd ..
+  node scripts/measure-colors.mjs reference.png > measured-colors.json
+  ```
+  Use the measured hexes verbatim in the DNA JSON: map the `background` role to `surface.background`, `text` to the darkest neutral, `accent` to `accent.hex`, and keep the full measured palette (with coverage percentages) in `design_system.color.measured_palette` for traceability. Only fall back to visual sampling when a measurement is impossible (e.g. URL-only references you cannot screenshot). Primary by area dominance, secondary by supporting role, accent by CTA usage. Map neutral scale from lightest background to darkest text.
 - **typography**: Identify font families by visual characteristics (geometric, humanist, serif class). Estimate scale ratios from heading/body size relationships.
 - **spacing**: Assess density by element proximity. Measure rhythm by section gap consistency.
 - **layout**: Identify grid by content alignment patterns. Note max-width, column count, asymmetry.
@@ -87,6 +92,11 @@ When the user provides DNA JSON + content to design:
    - Heavy effects → Three.js, custom GLSL shaders, Pixi.js
 7. Generate the design output (default: self-contained HTML with inline CSS/JS)
 8. Run quality checks from the generation guide
+9. **Verify (when the reference was an image)**: screenshot the generated output, then score it against the measured reference palette:
+   ```bash
+   node scripts/verify.mjs implementation.png measured-colors.json
+   ```
+   The report gives per-color ΔE and coverage drift with PASS/FAIL thresholds. If it fails, fix the offending colors and re-verify instead of asking the user to judge fidelity by eye.
 
 **If the user provides only content without DNA JSON**, ask whether to:
 - Analyze a reference first (go to Phase 2)

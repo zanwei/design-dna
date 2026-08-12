@@ -5,3 +5,5 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+scripts/node_modules/
+scripts/package-lock.json
