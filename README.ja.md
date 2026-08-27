@@ -88,6 +88,26 @@ DNA JSON が中核のアーティファクトです。一度抽出すれば、**
 >
 > **プロンプト例：** **参考と照らし合わせ、界面の階層と装飾、字階と余白、モーションとマテリアリティ、および UI 全体を再監査し、結論を現在の実装へ反映してください。**
 
+## 決定論的な計測（任意）
+
+LLM の色知覚は、よく使われるパレットの既定値に寄ることがあります。たとえばブランドカラーのピンク `#ff90e8` が `#ec4899` と「認識」される場合があります（ΔE ≈ 29）。次の二つの任意スクリプトを使うと、分析フェーズと生成フェーズを定量的に評価できます。
+
+```bash
+cd scripts && npm install && cd ..
+
+# 分析：参考スクリーンショットから正確なパレットを計測
+node scripts/measure-colors.mjs reference.png > measured-colors.json
+
+# 生成：実装のスクリーンショットを計測結果と比較して採点
+node scripts/verify.mjs implementation.png measured-colors.json
+```
+
+`measure-colors.mjs` は実際のピクセルに対して決定論的な k-means クラスタリングを行い（アンチエイリアスのノイズは知覚的 ΔE により統合）、正確な 16 進カラー、占有率、背景／テキスト／アクセントの役割を出力します。`verify.mjs` は生成結果を再計測し、色ごとの ΔE と占有率のずれを PASS/FAIL 判定付きで報告します。これにより、ユーザーの目視に頼らずエージェントが自己修正できます。参考が画像ファイルの場合、スキルは両方のスクリプトを自動的に使うようエージェントへ指示します。API キーは不要です。
+
+同じ参考（bun.sh のヒーロー）、同じエージェントで、知覚による再現と計測による再現を比較：
+
+![例：知覚したスタイルと計測したトークンから bun.sh のヒーローを再現。計測による再現はすべてのトークンを復元し（検証 PASS、平均 ΔE 0.87）、知覚による再現はほぼ黒の背景を #000000、ブランドのピンクを一般的な #ec4899 にずらしています（FAIL、平均 ΔE 9.54）。](docs/example-deterministic-measurement.png)
+
 ## 互換性
 
 [Agent Skills 仕様](https://agentskills.io) に準拠。[`skills` CLI](https://github.com/vercel-labs/skills) から、[対応エージェント](https://github.com/vercel-labs/skills#supported-agents) すべてにインストール可能です。Cursor、Claude Code、Codex、GitHub Copilot など [40 種類以上](https://github.com/vercel-labs/skills#supported-agents) に対応しています。

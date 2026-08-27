@@ -88,6 +88,26 @@ El JSON de DNA es el artefacto central. Una vez extraído, puede **versionarse**
 >
 > **Prompt:** **Frente a la referencia, revisa jerarquía, ornamentación, ritmo tipográfico, movimiento, materialidad y la UI en conjunto; luego incorpora tus conclusiones a la implementación actual.**
 
+## Medición determinista (opcional)
+
+La percepción de color de los LLM tiende a desviarse hacia valores predeterminados de paletas conocidas: un rosa de marca como `#ff90e8` puede «verse» como `#ec4899` (ΔE ≈ 29). Dos scripts opcionales permiten medir las fases de análisis y generación:
+
+```bash
+cd scripts && npm install && cd ..
+
+# Analizar: medir la paleta exacta de una captura de referencia
+node scripts/measure-colors.mjs reference.png > measured-colors.json
+
+# Generar: evaluar la captura de la implementación frente a la referencia
+node scripts/verify.mjs implementation.png measured-colors.json
+```
+
+`measure-colors.mjs` ejecuta un agrupamiento k-means determinista sobre los píxeles reales (fusionando el ruido del antialiasing mediante ΔE perceptual) y genera colores hexadecimales exactos con porcentajes de cobertura y funciones de fondo/texto/acento. `verify.mjs` vuelve a medir el resultado generado e informa el ΔE por color y la desviación de cobertura con umbrales PASS/FAIL. Así, el agente puede autocorregirse sin depender de la evaluación visual del usuario. Cuando las referencias son imágenes, la habilidad indica a los agentes que usen ambos scripts automáticamente. No se necesitan claves de API.
+
+Misma referencia (el hero de bun.sh), mismo agente: reconstrucción percibida frente a reconstrucción medida.
+
+![Ejemplo: reconstrucción del hero de bun.sh a partir del estilo percibido frente a tokens medidos. La reconstrucción medida reproduce todos los tokens (verificación PASS, ΔE medio de 0.87); la reconstrucción percibida desvía el fondo casi negro a #000000 y el rosa de marca al familiar #ec4899 (FAIL, ΔE medio de 9.54).](docs/example-deterministic-measurement.png)
+
 ## Compatibilidad
 
 Cumple la [especificación Agent Skills](https://agentskills.io). Instalable con la [CLI `skills`](https://github.com/vercel-labs/skills) en todos los [agentes compatibles](https://github.com/vercel-labs/skills#supported-agents), incluidos Cursor, Claude Code, Codex, GitHub Copilot y [más de 40](https://github.com/vercel-labs/skills#supported-agents).
