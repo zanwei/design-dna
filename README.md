@@ -102,8 +102,10 @@ The DNA JSON is the key artifact. Once extracted, it can be **committed to versi
 
 LLM color perception drifts toward familiar palette defaults — a brand pink like `#ff90e8` gets "seen" as `#ec4899` (ΔE ≈ 29). Two optional scripts make the Analyze and Generate phases measurable:
 
+The manual commands below are for a local clone of this repository. Run them from the clone's root:
+
 ```bash
-cd scripts && npm install && cd ..
+npm install --prefix ./scripts
 
 # Analyze: measure the exact palette from a reference screenshot
 node scripts/measure-colors.mjs reference.png > measured-colors.json
@@ -112,7 +114,9 @@ node scripts/measure-colors.mjs reference.png > measured-colors.json
 node scripts/verify.mjs implementation.png measured-colors.json
 ```
 
-`measure-colors.mjs` runs deterministic k-means clustering over the actual pixels (with perceptual ΔE merging of anti-aliasing noise) and outputs exact hexes with coverage percentages and background/text/accent roles. `verify.mjs` re-measures the generated output and reports per-color ΔE and coverage drift with PASS/FAIL thresholds, giving the agent a self-correction loop instead of relying on the user's eye. The skill instructs agents to use both automatically when references are image files; no API keys required.
+When installed as an agent skill via Quick Install, the agent must resolve these scripts from the absolute directory containing the loaded `SKILL.md`; users do not need a `scripts/` directory in their project root.
+
+`measure-colors.mjs` runs deterministic k-means clustering over the actual pixels (with perceptual ΔE merging of anti-aliasing noise) and outputs exact hexes, coverage as `0..1` fractions, background/text/accent roles, and the clustering `k`. `verify.mjs` reuses the recorded `k`, re-measures the generated output, and reports per-color ΔE and coverage drift with PASS/FAIL thresholds, giving the agent a self-correction loop instead of relying on the user's eye. The skill instructs agents to use both automatically when references are image files; no API keys required.
 
 Same reference (bun.sh's hero), same agent — perceived rebuild vs measured rebuild:
 

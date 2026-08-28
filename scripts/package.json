@@ -6,6 +6,9 @@
     "node": ">=18.17"
   },
   "description": "Optional deterministic measurement scripts for the design-dna skill",
+  "scripts": {
+    "test": "node --test test/color-measurement.test.mjs"
+  },
   "dependencies": {
     "sharp": "^0.33.5"
   }

@@ -92,8 +92,10 @@ DNA JSON 是核心產物。一旦擷取完成，它可以**提交到版本控制
 
 LLM 對顏色的感知容易偏向常見調色盤的預設值——例如品牌粉紅色 `#ff90e8` 可能被「看成」`#ec4899`（ΔE ≈ 29）。以下兩個選用腳本可讓分析與生成階段獲得可量化的結果：
 
+以下手動指令適用於本儲存庫的本機複製，請在複製目錄的根目錄中執行：
+
 ```bash
-cd scripts && npm install && cd ..
+npm install --prefix ./scripts
 
 # 分析：從參考截圖測量精確調色盤
 node scripts/measure-colors.mjs reference.png > measured-colors.json
@@ -102,7 +104,9 @@ node scripts/measure-colors.mjs reference.png > measured-colors.json
 node scripts/verify.mjs implementation.png measured-colors.json
 ```
 
-`measure-colors.mjs` 對實際像素執行確定性 k-means 分群（透過感知 ΔE 合併反鋸齒雜訊），輸出精確的十六進位色彩、覆蓋率，以及背景／文字／強調色角色。`verify.mjs` 會重新測量生成結果，回報各色彩的 ΔE 與覆蓋率偏差，並給出 PASS/FAIL 結果，讓代理人能自行校正，而不必依賴使用者目測。參考素材為圖片檔案時，技能會指示代理人自動使用這兩個腳本；不需 API 金鑰。
+透過「快速安裝」安裝為代理人技能時，代理人應以已載入的 `SKILL.md` 所在絕對目錄為基準解析這些腳本；使用者無需在自己的專案根目錄中準備 `scripts/` 目錄。
+
+`measure-colors.mjs` 對實際像素執行確定性 k-means 分群（透過感知 ΔE 合併反鋸齒雜訊），輸出精確的十六進位色彩、以 `0..1` 比例表示的覆蓋率、背景／文字／強調色角色，以及分群參數 `k`。`verify.mjs` 會複用記錄的 `k`，重新測量生成結果，回報各色彩的 ΔE 與覆蓋率偏差，並給出 PASS/FAIL 結果，讓代理人能自行校正，而不必依賴使用者目測。參考素材為圖片檔案時，技能會指示代理人自動使用這兩個腳本；不需 API 金鑰。
 
 同一份參考（bun.sh 首屏）、同一個代理人——感知重建與測量重建的比較：
 

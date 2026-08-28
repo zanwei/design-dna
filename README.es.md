@@ -92,8 +92,10 @@ El JSON de DNA es el artefacto central. Una vez extraído, puede **versionarse**
 
 La percepción de color de los LLM tiende a desviarse hacia valores predeterminados de paletas conocidas: un rosa de marca como `#ff90e8` puede «verse» como `#ec4899` (ΔE ≈ 29). Dos scripts opcionales permiten medir las fases de análisis y generación:
 
+Los siguientes comandos manuales están pensados para un clon local de este repositorio. Ejecútalos desde la raíz del clon:
+
 ```bash
-cd scripts && npm install && cd ..
+npm install --prefix ./scripts
 
 # Analizar: medir la paleta exacta de una captura de referencia
 node scripts/measure-colors.mjs reference.png > measured-colors.json
@@ -102,7 +104,9 @@ node scripts/measure-colors.mjs reference.png > measured-colors.json
 node scripts/verify.mjs implementation.png measured-colors.json
 ```
 
-`measure-colors.mjs` ejecuta un agrupamiento k-means determinista sobre los píxeles reales (fusionando el ruido del antialiasing mediante ΔE perceptual) y genera colores hexadecimales exactos con porcentajes de cobertura y funciones de fondo/texto/acento. `verify.mjs` vuelve a medir el resultado generado e informa el ΔE por color y la desviación de cobertura con umbrales PASS/FAIL. Así, el agente puede autocorregirse sin depender de la evaluación visual del usuario. Cuando las referencias son imágenes, la habilidad indica a los agentes que usen ambos scripts automáticamente. No se necesitan claves de API.
+Cuando se instala como habilidad de agente mediante la instalación rápida, el agente debe resolver estos scripts desde el directorio absoluto que contiene el `SKILL.md` cargado; el usuario no necesita un directorio `scripts/` en la raíz de su proyecto.
+
+`measure-colors.mjs` ejecuta un agrupamiento k-means determinista sobre los píxeles reales (fusionando el ruido del antialiasing mediante ΔE perceptual) y genera colores hexadecimales exactos, cobertura como fracciones `0..1`, funciones de fondo/texto/acento y el `k` del agrupamiento. `verify.mjs` reutiliza el `k` registrado, vuelve a medir el resultado generado e informa el ΔE por color y la desviación de cobertura con umbrales PASS/FAIL. Así, el agente puede autocorregirse sin depender de la evaluación visual del usuario. Cuando las referencias son imágenes, la habilidad indica a los agentes que usen ambos scripts automáticamente. No se necesitan claves de API.
 
 Misma referencia (el hero de bun.sh), mismo agente: reconstrucción percibida frente a reconstrucción medida.
 

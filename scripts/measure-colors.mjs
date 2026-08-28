@@ -4,7 +4,7 @@
 // Instead of perceiving colors from a screenshot (which drifts toward familiar
 // palette defaults), this measures them: k-means clustering over the actual
 // pixels, perceptual (CIE ΔE) merging of near-duplicate clusters, and coverage
-// percentages. The output is meant to be merged into `design_system.color` of
+// fractions. The output is meant to be merged into `design_system.color` of
 // a Design DNA JSON — exact hexes with evidence, not guesses.
 //
 // Usage:
@@ -13,6 +13,7 @@
 // Output (stdout): JSON
 //   {
 //     "source": { "file", "width", "height" },
+//     "measurement": { "k", "sampling" },
 //     "palette": [ { "hex", "coverage", "role" } ... ],
 //     "measured": true
 //   }
@@ -22,13 +23,20 @@ import { basename, extname } from "node:path";
 import { deltaE, hex, hsv } from "./color-math.mjs";
 
 const args = process.argv.slice(2);
-const file = args.find((a) => !a.startsWith("--"));
+const kIdx = args.indexOf("--k");
+const file = args.find(
+  (argument, index) =>
+    !argument.startsWith("--") && (kIdx < 0 || index !== kIdx + 1)
+);
 if (!file) {
   console.error("usage: node scripts/measure-colors.mjs <image> [--k 8]");
   process.exit(1);
 }
-const kIdx = args.indexOf("--k");
-const K = kIdx >= 0 ? Math.max(2, Math.min(16, Number(args[kIdx + 1]) || 8)) : 8;
+const requestedK = kIdx >= 0 ? Number(args[kIdx + 1]) : 8;
+const K = Number.isFinite(requestedK)
+  ? Math.max(2, Math.min(16, Math.trunc(requestedK)))
+  : 8;
+const MAX_SAMPLED_PIXELS = 160_000;
 
 // ---------- k-means ----------
 
@@ -131,20 +139,86 @@ function assignRoles(clusters) {
     entries[text].role = "text";
     taken.add(text);
   }
-  // accent: most saturated remaining color with ≥0.2% coverage; near-white and
-  // near-black clusters are excluded — they are surfaces/ink, not accents
+  // Accent: prefer colors that are both saturated and perceptually distinct
+  // from the background. Coverage only discounts tiny clusters; once a color
+  // reaches 2%, a large tinted surface must not outrank a smaller bright CTA.
   const accents = entries
     .map((e, i) => ({ e, i }))
     .filter(
       ({ e, i }) =>
         !taken.has(i) && e.s >= 0.25 && e.share >= 0.002 && e.l >= 0.08 && e.l <= 0.92
     )
-    .sort((a, b) => b.e.s * Math.sqrt(b.e.share) - a.e.s * Math.sqrt(a.e.share));
+    .map(({ e, i }) => ({
+      e,
+      i,
+      score:
+        e.s *
+        deltaE(e.center, entries[0].center) *
+        Math.sqrt(Math.min(e.share, 0.02) / 0.02),
+    }))
+    .sort((a, b) => b.score - a.score);
   if (accents.length > 0) {
     entries[accents[0].i].role = "accent";
     taken.add(accents[0].i);
   }
   return entries;
+}
+
+// ---------- deterministic bounded sampling ----------
+
+// A single nearest-neighbour resize always samples at the same phase. That can
+// erase periodic detail entirely (for example, every other column in 1 px
+// stripes). Instead, divide the full row-major pixel sequence into equal
+// strata and choose one exact source pixel from each stratum with a fixed hash.
+// The sample count is bounded, no interpolated colors are introduced, and the
+// varying offset breaks the fixed phase that causes periodic aliasing.
+function mix32(value) {
+  let x = (value + 0x9e3779b9) >>> 0;
+  x = Math.imul(x ^ (x >>> 16), 0x21f0aaad);
+  x = Math.imul(x ^ (x >>> 15), 0x735a2d97);
+  return (x ^ (x >>> 15)) >>> 0;
+}
+
+function sampleIndex(sample, totalPixels, sampleCount) {
+  const start = Math.floor((sample * totalPixels) / sampleCount);
+  const end = Math.floor(((sample + 1) * totalPixels) / sampleCount);
+  return start + (mix32(sample) % Math.max(1, end - start));
+}
+
+async function samplePixels(image, width, height) {
+  const totalPixels = width * height;
+  const sampleCount = Math.min(totalPixels, MAX_SAMPLED_PIXELS);
+  const pixels = [];
+  let sample = 0;
+  let nextIndex = sampleIndex(sample, totalPixels, sampleCount);
+  let pixelIndex = 0;
+  let carry = Buffer.alloc(0);
+
+  // Stream raw output so the JavaScript-side sample stays bounded even when
+  // the decoded source is much larger than the clustering budget.
+  for await (const chunk of image.raw()) {
+    const data = carry.length ? Buffer.concat([carry, chunk]) : chunk;
+    const usable = data.length - (data.length % 3);
+    const firstPixel = pixelIndex;
+    const nextChunkPixel = firstPixel + usable / 3;
+    while (sample < sampleCount && nextIndex < nextChunkPixel) {
+      const offset = (nextIndex - firstPixel) * 3;
+      pixels.push([data[offset], data[offset + 1], data[offset + 2]]);
+      sample++;
+      if (sample < sampleCount) {
+        nextIndex = sampleIndex(sample, totalPixels, sampleCount);
+      }
+    }
+    pixelIndex = nextChunkPixel;
+    carry = data.subarray(usable);
+  }
+
+  if (carry.length !== 0 || pixels.length !== sampleCount) {
+    throw new Error(
+      `expected ${sampleCount} RGB samples, received ${pixels.length}`
+    );
+  }
+  return pixels;
 }
 
 // ---------- main ----------
@@ -157,15 +231,12 @@ try {
   console.error(`error: cannot read ${file}: ${err.message}`);
   process.exit(1);
 }
-const MAX = 400; // downsample for clustering speed; colors are unaffected
-const scale = Math.min(1, MAX / Math.max(width, height));
-const w = Math.max(1, Math.round(width * scale));
-const h = Math.max(1, Math.round(height * scale));
-const raw = await img.resize(w, h, { kernel: "nearest" }).raw().toBuffer();
-
-const pixels = [];
-for (let i = 0; i + 2 < raw.length; i += 3) {
-  pixels.push([raw[i], raw[i + 1], raw[i + 2]]);
+let pixels;
+try {
+  pixels = await samplePixels(img, width, height);
+} catch (err) {
+  console.error(`error: cannot sample ${file}: ${err.message}`);
+  process.exit(1);
 }
 
 // JPEG compression spreads flat colors into wider noise bands than PNG/WebP
@@ -176,6 +247,14 @@ console.log(
   JSON.stringify(
     {
       source: { file: basename(file), width, height },
+      measurement: {
+        k: K,
+        sampling: {
+          method: "deterministic_stratified",
+          max_pixels: MAX_SAMPLED_PIXELS,
+          sampled_pixels: pixels.length,
+        },
+      },
       palette: palette.map((p) => ({
         hex: hex(p.center),
         coverage: Number(p.share.toFixed(4)),

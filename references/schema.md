@@ -5,7 +5,7 @@ Three-dimensional design profile:
 - **design_style** — qualitative perception
 - **visual_effects** — special rendering such as Canvas, WebGL, 3D, particles, shaders, scroll effects, cursor effects, SVG animation, and glassmorphism
 
-Every field below must appear in the final JSON output.
+Every non-optional field below must appear in the final JSON output. Include optional fields only when their stated source data exists.
 
 ## Top-Level Structure
 
@@ -36,7 +36,8 @@ The structural and measurable layer.
 - `surface.card`
 - `surface.elevated`
 - `contrast_strategy`
-- `measured_palette` *(optional)* — when the reference was an image measured with `scripts/measure-colors.mjs`, the full measured palette (`hex`, `coverage`, `role` per entry) for traceability
+- `measurement` *(optional)* — when the reference was measured with `scripts/measure-colors.mjs`, copy its measurement configuration (including `k`) so verification can reuse the same clustering settings
+- `measured_palette` *(optional)* — when the reference was measured, copy its palette (`hex`, `coverage`, `role` per entry) for traceability; `coverage` is a `0..1` fraction
 
 #### `design_system.typography`
 - `type_scale.display.size`

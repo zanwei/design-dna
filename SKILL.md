@@ -52,12 +52,12 @@ When the user provides images, screenshots, or links representing a target desig
 **Analysis approach per dimension:**
 
 #### Dimension 1: design_system
-- **color**: Do not estimate hex values by eye — perceived colors drift toward familiar palette defaults (often by a ΔE of 10+). When the reference is an image file, measure instead:
+- **color**: Do not estimate hex values by eye — perceived colors drift toward familiar palette defaults (often by a ΔE of 10+). When the reference is an image file, measure instead. Resolve `SKILL_ROOT` to the absolute directory containing this `SKILL.md`; never assume the current project directory contains the skill's `scripts/` folder. Use absolute paths for the reference and output, and keep one uniquely named measurement file per reference:
   ```bash
-  cd scripts && npm install --silent && cd ..
-  node scripts/measure-colors.mjs reference.png > measured-colors.json
+  npm install --prefix "$SKILL_ROOT/scripts" --silent
+  node "$SKILL_ROOT/scripts/measure-colors.mjs" "$REFERENCE_IMAGE" > "$MEASUREMENT_JSON"
   ```
-  Use the measured hexes verbatim in the DNA JSON: map the `background` role to `surface.background`, `text` to the darkest neutral, `accent` to `accent.hex`, and keep the full measured palette (with coverage percentages) in `design_system.color.measured_palette` for traceability. Only fall back to visual sampling when a measurement is impossible (e.g. URL-only references you cannot screenshot). Primary by area dominance, secondary by supporting role, accent by CTA usage. Map neutral scale from lightest background to darkest text.
+  Use the measured hexes verbatim in the DNA JSON: map the `background` role to `surface.background`; map `text` to the end of `neutral.scale` that contrasts with the measured background and document that foreground use in `neutral.usage`; and map `accent` to `accent.hex`. Keep both the measured palette and its `measurement` configuration in `design_system.color.measured_palette` and `design_system.color.measurement` so verification can reuse the same clustering configuration. Coverage values are fractions from `0` to `1`. Only fall back to visual sampling when measurement is impossible (for example, a URL-only reference that cannot be screenshotted). Choose primary and secondary colors by semantic role, use accent for CTA emphasis, and order the neutral scale from lightest to darkest regardless of theme.
 - **typography**: Identify font families by visual characteristics (geometric, humanist, serif class). Estimate scale ratios from heading/body size relationships.
 - **spacing**: Assess density by element proximity. Measure rhythm by section gap consistency.
 - **layout**: Identify grid by content alignment patterns. Note max-width, column count, asymmetry.
@@ -92,11 +92,11 @@ When the user provides DNA JSON + content to design:
    - Heavy effects → Three.js, custom GLSL shaders, Pixi.js
 7. Generate the design output (default: self-contained HTML with inline CSS/JS)
 8. Run quality checks from the generation guide
-9. **Verify (when the reference was an image)**: screenshot the generated output, then score it against the measured reference palette:
+9. **Verify (when the DNA contains a measured palette)**: save the current Design DNA JSON if it is not already a file, screenshot the generated output, then score it against that DNA file. Resolve `SKILL_ROOT` from this `SKILL.md` and use absolute paths; do not assume a temporary file named `measured-colors.json` exists:
    ```bash
-   node scripts/verify.mjs implementation.png measured-colors.json
+   node "$SKILL_ROOT/scripts/verify.mjs" "$IMPLEMENTATION_SCREENSHOT" "$DESIGN_DNA_JSON"
    ```
-   The report gives per-color ΔE and coverage drift with PASS/FAIL thresholds. If it fails, fix the offending colors and re-verify instead of asking the user to judge fidelity by eye.
+   A standalone measurement JSON may be used instead of the DNA file when that is the only persisted artifact. For multiple image references, verify against each reference's measurement separately. The report gives per-color ΔE and coverage drift with PASS/FAIL thresholds. If it fails, fix the offending colors and re-verify instead of asking the user to judge fidelity by eye.
 
 **If the user provides only content without DNA JSON**, ask whether to:
 - Analyze a reference first (go to Phase 2)
