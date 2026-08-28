@@ -88,6 +88,26 @@ DNA JSON 是核心產物。一旦擷取完成，它可以**提交到版本控制
 >
 > **Prompt：** **請其對照參考複審介面層級與點綴、字階與留白、動效與材質及整體 UI，並將結論回填至目前實作。**
 
+## 確定性測量（選用）
+
+LLM 對顏色的感知容易偏向常見調色盤的預設值——例如品牌粉紅色 `#ff90e8` 可能被「看成」`#ec4899`（ΔE ≈ 29）。以下兩個選用腳本可讓分析與生成階段獲得可量化的結果：
+
+```bash
+cd scripts && npm install && cd ..
+
+# 分析：從參考截圖測量精確調色盤
+node scripts/measure-colors.mjs reference.png > measured-colors.json
+
+# 生成：依據參考結果評估實作截圖
+node scripts/verify.mjs implementation.png measured-colors.json
+```
+
+`measure-colors.mjs` 對實際像素執行確定性 k-means 分群（透過感知 ΔE 合併反鋸齒雜訊），輸出精確的十六進位色彩、覆蓋率，以及背景／文字／強調色角色。`verify.mjs` 會重新測量生成結果，回報各色彩的 ΔE 與覆蓋率偏差，並給出 PASS/FAIL 結果，讓代理人能自行校正，而不必依賴使用者目測。參考素材為圖片檔案時，技能會指示代理人自動使用這兩個腳本；不需 API 金鑰。
+
+同一份參考（bun.sh 首屏）、同一個代理人——感知重建與測量重建的比較：
+
+![範例：依據感知樣式與測量權杖重建 bun.sh 首屏。測量重建重現了所有權杖（驗證通過，平均 ΔE 0.87）；感知重建將近黑色背景偏移為 #000000，並將品牌粉紅色偏移為常見的 #ec4899（驗證失敗，平均 ΔE 9.54）。](docs/example-deterministic-measurement.png)
+
 ## 相容性
 
 符合 [Agent Skills 規範](https://agentskills.io)。可透過 [`skills` CLI](https://github.com/vercel-labs/skills) 安裝到所有[支援的代理人](https://github.com/vercel-labs/skills#supported-agents)，包括 Cursor、Claude Code、Codex、GitHub Copilot 等 [40+ 款](https://github.com/vercel-labs/skills#supported-agents)。

@@ -36,6 +36,7 @@ The structural and measurable layer.
 - `surface.card`
 - `surface.elevated`
 - `contrast_strategy`
+- `measured_palette` *(optional)* — when the reference was an image measured with `scripts/measure-colors.mjs`, the full measured palette (`hex`, `coverage`, `role` per entry) for traceability
 
 #### `design_system.typography`
 - `type_scale.display.size`

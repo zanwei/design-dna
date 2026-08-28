@@ -88,6 +88,26 @@ DNA JSON이 핵심 산출물입니다. 한 번 추출하면 **버전 관리에 �
 >
 > **프롬프트 예:** **참고와 대조하여 화면 계층과 장식, 자간·여백, 모션과 재질감, 전체 UI를 재검토하고 결론을 현재 구현에 반영해 주세요.**
 
+## 결정론적 측정(선택 사항)
+
+LLM의 색상 인식은 익숙한 팔레트 기본값 쪽으로 치우칠 수 있습니다. 예를 들어 브랜드 핑크 `#ff90e8`을 `#ec4899`로 "인식"할 수 있습니다(ΔE ≈ 29). 다음 두 선택적 스크립트를 사용하면 분석 및 생성 단계를 정량적으로 측정할 수 있습니다.
+
+```bash
+cd scripts && npm install && cd ..
+
+# 분석: 참고 스크린샷에서 정확한 팔레트 측정
+node scripts/measure-colors.mjs reference.png > measured-colors.json
+
+# 생성: 구현 스크린샷을 측정 결과와 비교해 평가
+node scripts/verify.mjs implementation.png measured-colors.json
+```
+
+`measure-colors.mjs`는 실제 픽셀에 결정론적 k-means 클러스터링을 수행하고(앤티앨리어싱 노이즈는 지각적 ΔE로 병합), 정확한 16진수 색상, 점유율, 배경/텍스트/강조 역할을 출력합니다. `verify.mjs`는 생성 결과를 다시 측정해 색상별 ΔE와 점유율 편차를 PASS/FAIL 판정과 함께 보고합니다. 따라서 사용자의 육안 판단에 의존하지 않고 에이전트가 스스로 보정할 수 있습니다. 참고 자료가 이미지 파일이면 스킬은 에이전트가 두 스크립트를 자동으로 사용하도록 지시합니다. API 키는 필요하지 않습니다.
+
+같은 참고 자료(bun.sh의 히어로), 같은 에이전트로 지각 기반 재구성과 측정 기반 재구성을 비교합니다.
+
+![예: 지각한 스타일과 측정한 토큰으로 bun.sh 히어로를 재구성합니다. 측정 기반 재구성은 모든 토큰을 재현했지만(검증 PASS, 평균 ΔE 0.87), 지각 기반 재구성은 거의 검은 배경을 #000000으로, 브랜드 핑크를 익숙한 #ec4899로 바꿉니다(FAIL, 평균 ΔE 9.54).](docs/example-deterministic-measurement.png)
+
 ## 호환성
 
 [Agent Skills 사양](https://agentskills.io)을 따릅니다. [`skills` CLI](https://github.com/vercel-labs/skills)로 [지원 에이전트](https://github.com/vercel-labs/skills#supported-agents) 전체에 설치할 수 있습니다. Cursor, Claude Code, Codex, GitHub Copilot 등 [40종 이상](https://github.com/vercel-labs/skills#supported-agents)을 지원합니다.

@@ -98,6 +98,26 @@ The DNA JSON is the key artifact. Once extracted, it can be **committed to versi
 >
 > **Prompt:** **Against the reference, audit hierarchy, ornamentation, typographic rhythm, motion, materiality, and overall UI—then merge your conclusions back into the current implementation.**
 
+## Deterministic Measurement (optional)
+
+LLM color perception drifts toward familiar palette defaults — a brand pink like `#ff90e8` gets "seen" as `#ec4899` (ΔE ≈ 29). Two optional scripts make the Analyze and Generate phases measurable:
+
+```bash
+cd scripts && npm install && cd ..
+
+# Analyze: measure the exact palette from a reference screenshot
+node scripts/measure-colors.mjs reference.png > measured-colors.json
+
+# Generate: score the implementation screenshot against the reference
+node scripts/verify.mjs implementation.png measured-colors.json
+```
+
+`measure-colors.mjs` runs deterministic k-means clustering over the actual pixels (with perceptual ΔE merging of anti-aliasing noise) and outputs exact hexes with coverage percentages and background/text/accent roles. `verify.mjs` re-measures the generated output and reports per-color ΔE and coverage drift with PASS/FAIL thresholds, giving the agent a self-correction loop instead of relying on the user's eye. The skill instructs agents to use both automatically when references are image files; no API keys required.
+
+Same reference (bun.sh's hero), same agent — perceived rebuild vs measured rebuild:
+
+![Example: rebuilding the bun.sh hero from perceived style vs measured tokens. The measured rebuild reproduces every token (verify PASS, mean ΔE 0.87); the perceived rebuild drifts the near-black background to #000000 and the brand pink to the familiar #ec4899 (FAIL, mean ΔE 9.54).](docs/example-deterministic-measurement.png)
+
 ## Compatibility
 
 Follows the [Agent Skills specification](https://agentskills.io). Installable via [`skills` CLI](https://github.com/vercel-labs/skills) to all [supported agents](https://github.com/vercel-labs/skills#supported-agents) including Cursor, Claude Code, Codex, GitHub Copilot, and [39 more](https://github.com/vercel-labs/skills#supported-agents).
